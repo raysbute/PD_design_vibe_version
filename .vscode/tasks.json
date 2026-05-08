@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "qmake-build", // 任务名称
+            "type": "shell",
+            "command": "qmake", // 调用qmake
+            "args": [
+                "${workspaceFolder}\\your_project.pro", // 你的.pro文件
+                "-spec", "win32-g++", // 如果是MSVC，改为 "win32-msvc"
+                "CONFIG+=debug", "CONFIG+=qml_debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": ["qmake"] // 先执行qmake，再make
+        },
+        {
+            "label": "qmake",
+            "type": "shell",
+            "command": "qmake",
+            "args": ["${workspaceFolder}", "CONFIG+=debug"]
+        },
+        // ... 可以继续添加 "make" 和 "clean" 任务
+    ]
+}

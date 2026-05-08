@@ -1,0 +1,15 @@
+release/global.o
+release/list_ops.o
+release/utils.o
+release/init_data.o
+release/persistence.o
+release/batch_input.o
+release/main_window.o
+release/admin_panels.o
+release/doctor_panels.o
+release/patient_panels.o
+release/qt_main.o
+release/moc_main_window.o
+release/moc_admin_panels.o
+release/moc_doctor_panels.o
+release/moc_patient_panels.o

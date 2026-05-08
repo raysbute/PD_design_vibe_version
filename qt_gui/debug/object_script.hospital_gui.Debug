@@ -1,0 +1,15 @@
+debug/global.o
+debug/list_ops.o
+debug/utils.o
+debug/init_data.o
+debug/persistence.o
+debug/batch_input.o
+debug/main_window.o
+debug/admin_panels.o
+debug/doctor_panels.o
+debug/patient_panels.o
+debug/qt_main.o
+debug/moc_main_window.o
+debug/moc_admin_panels.o
+debug/moc_doctor_panels.o
+debug/moc_patient_panels.o
