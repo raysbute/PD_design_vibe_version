@@ -23,7 +23,6 @@ bool adminLogin(AdminNode* adminHead) {
 
         string password;
         cout << "请输入密码: ";
-        clearInputBuffer();  // consume any leftover newline
         getline(cin, password);
 
         AdminNode* admin = findAdminByID(adminHead, adminID);

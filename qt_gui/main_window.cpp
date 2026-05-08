@@ -26,6 +26,7 @@
 #include "../global.h"
 #include "../list_ops.h"
 #include "../persistence.h"
+#include "../init_data.h"
 
 // External linked list heads (defined in main.cpp)
 extern DepartmentNode* deptHead;
@@ -349,17 +350,12 @@ void MainWindow::setupUI() {
 
     stackedWidget->addWidget(loginPage);
 
-    // ---- Admin Page (placeholder) ----
+    // ---- Admin Page ----
     adminPage = new AdminWidget();
     stackedWidget->addWidget(adminPage);
 
-    // ---- Doctor Page (placeholder) ----
-    doctorPage = new DoctorWidget();
-    stackedWidget->addWidget(doctorPage);
-
-    // ---- Patient Page (placeholder) ----
-    patientPage = new PatientWidget();
-    stackedWidget->addWidget(patientPage);
+    // ---- Doctor Page - created lazily on login ----
+    // ---- Patient Page - created lazily on login ----
 
     // Start on login page
     stackedWidget->setCurrentWidget(loginPage);
@@ -475,7 +471,14 @@ void MainWindow::loginAsDoctor() {
     QMessageBox::information(this, "登录成功",
         QString("欢迎，%1 医生！").arg(QString::fromStdString(doctor->name)));
 
-    showDoctorPanel(id);
+    // Create doctor page lazily with the logged-in doctor ID
+    if (doctorPage) {
+        stackedWidget->removeWidget(doctorPage);
+        delete doctorPage;
+    }
+    doctorPage = new DoctorWidget(id, this);
+    stackedWidget->addWidget(doctorPage);
+
     stackedWidget->setCurrentWidget(doctorPage);
     updateStatusBar();
 }
@@ -507,7 +510,14 @@ void MainWindow::loginAsPatient() {
     QMessageBox::information(this, "登录成功",
         QString("欢迎，%1 ！").arg(QString::fromStdString(patient->name)));
 
-    showPatientPanel(id);
+    // Create patient page lazily with the logged-in patient ID
+    if (patientPage) {
+        stackedWidget->removeWidget(patientPage);
+        delete patientPage;
+    }
+    patientPage = new PatientWidget(id, this);
+    stackedWidget->addWidget(patientPage);
+
     stackedWidget->setCurrentWidget(patientPage);
     updateStatusBar();
 }

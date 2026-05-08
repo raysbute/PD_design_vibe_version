@@ -1,0 +1,28 @@
+# ==========================================
+# 批量导入测试 - 挂号
+# 格式: REG|患者ID|科室ID|医生ID
+# 挂号ID自动生成，日期使用当前weekday
+# 需要先导入患者和医生文件
+# ==========================================
+
+# 患者挂内科
+REG|PAT001|DEPT001|DOC001
+REG|PAT010|DEPT001|DOC003
+REG|PAT020|DEPT001|DOC005
+
+# 患者挂外科
+REG|PAT030|DEPT002|DOC006
+REG|PAT040|DEPT002|DOC008
+REG|PAT050|DEPT002|DOC010
+
+# 患者挂儿科
+REG|PAT060|DEPT003|DOC011
+REG|PAT070|DEPT003|DOC012
+
+# 患者挂妇产科
+REG|PAT080|DEPT004|DOC015
+REG|PAT090|DEPT004|DOC017
+
+# 患者挂急诊科
+REG|PAT100|DEPT005|DOC019
+REG|PAT110|DEPT005|DOC021

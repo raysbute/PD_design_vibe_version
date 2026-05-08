@@ -1,5 +1,7 @@
 #include <QApplication>
 #include "main_window.h"
+#include "../persistence.h"
+#include "../init_data.h"
 
 // Declare the linked list heads as extern
 extern DepartmentNode* deptHead;

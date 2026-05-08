@@ -1,0 +1,10 @@
+# ==========================================
+# 批量导入测试 - 管理员
+# 格式: ADMIN|管理员ID|密码
+# ==========================================
+
+ADMIN|superadmin|super123
+ADMIN|manager01|mgrpass1
+ADMIN|manager02|mgrpass2
+ADMIN|reception|front888
+ADMIN|pharmacy|pharm666

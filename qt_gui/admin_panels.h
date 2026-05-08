@@ -5,6 +5,9 @@
 #include <QTableWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
 #include "../entities.h"
 
 class AdminWidget : public QWidget {
