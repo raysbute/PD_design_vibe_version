@@ -1497,21 +1497,21 @@ static void adminHospDischarge(DepartmentNode* deptHead,
     cout << "  入院Day: " << hosp->admitDay << endl;
     cout << "  押金: " << hosp->deposit << " 元" << endl;
 
-    // Calculate stay days and charges (guard against data corruption)
+    // Calculate stay days for display (fees already deducted during time advance)
     int stayDays = (weekday > hosp->admitDay) ? (int)(weekday - hosp->admitDay) : 1;
     double totalCharge = HOSPITAL_DAILY_FEE * stayDays;
-    double balance = hosp->deposit - totalCharge;
 
     cout << "\n费用结算:" << endl;
     cout << "  住院天数: " << stayDays << " 天" << endl;
     cout << "  每日费用: " << HOSPITAL_DAILY_FEE << " 元" << endl;
-    cout << "  总费用: " << totalCharge << " 元" << endl;
-    cout << "  押金: " << hosp->deposit << " 元" << endl;
+    cout << "  累计费用: " << totalCharge << " 元" << endl;
+    cout << "  当前押金余额: " << hosp->deposit << " 元" << endl;
+    cout << "  (注: 每日费用已在时间推进中从押金自动扣除)" << endl;
 
-    if (balance >= 0) {
-        cout << "  应退: " << balance << " 元" << endl;
+    if (hosp->deposit >= 0) {
+        cout << "  应退押金: " << hosp->deposit << " 元" << endl;
     } else {
-        cout << "  应补: " << (-balance) << " 元" << endl;
+        cout << "  应补缴: " << (-hosp->deposit) << " 元" << endl;
     }
 
     if (!readConfirm("\n确认办理出院? (y/n): ")) {
@@ -1536,10 +1536,7 @@ static void adminHospDischarge(DepartmentNode* deptHead,
     // Update hospitalization record
     hosp->dischargeDay = weekday;
     hosp->status = 1;  // discharged
-
-    // Update hospital funds
-    extern double money;
-    money += totalCharge;
+    // Note: money was already increased during daily time advance, no need to add again
 
     cout << "出院办理成功!" << endl;
     pauseScreen();
@@ -1700,19 +1697,24 @@ static void adminTimeAdvance(PatientNode* patientHead,
                              RegistrationNode* regHead,
                              HospitalizationNode* hospHead) {
     printTitle("时间推进");
-    int days = readIntRange("请输入推进天数 (>0, 0=取消): ", 0, 9999);
-    if (days == 0) return;
+    cout << "当前时间: " << formatTime() << "  Day" << weekday << endl;
+    int seconds = readIntRange("请输入推进秒数 (>0, 0=取消): ", 0, 99999999);
+    if (seconds == 0) return;
+
+    unsigned int daysAdvanced = (unsigned int)(seconds / SECONDS_PER_DAY);
+    unsigned int remainderSec = (unsigned int)(seconds % SECONDS_PER_DAY);
 
     double totalDeducted = 0.0;
     int expiredCount = 0;
 
     extern unsigned long long globalTime;
     extern double money;
-    for (int d = 0; d < days; d++) {
-        // 1. Advance time first
+
+    // Process each full day: deduct fees + expire old registrations
+    for (unsigned int d = 0; d < daysAdvanced; d++) {
         setTime(globalTime + SECONDS_PER_DAY);
 
-        // 2. Auto-deduct 200 from each in-hospital patient's deposit and add to money
+        // Auto-deduct 200 from each in-hospital patient's deposit and add to money
         for (HospitalizationNode* h = hospHead; h != nullptr; h = h->next) {
             if (h->status != 0) continue;  // only active hospitalizations
             h->deposit = round2(h->deposit - HOSPITAL_DAILY_FEE);
@@ -1727,7 +1729,7 @@ static void adminTimeAdvance(PatientNode* patientHead,
             }
         }
 
-        // 3. Expire pending registrations from days before the current weekday
+        // Expire pending registrations from days before the current weekday
         for (RegistrationNode* r = regHead; r != nullptr; r = r->next) {
             if (r->status == STATUS_PENDING && r->regDay < weekday) {
                 r->status = STATUS_EXPIRED;
@@ -1736,11 +1738,26 @@ static void adminTimeAdvance(PatientNode* patientHead,
         }
     }
 
-    cout << "\n时间推进 " << days << " 天完成!" << endl;
+    // Advance remaining seconds (partial day, no fee deduction)
+    if (remainderSec > 0) {
+        setTime(globalTime + remainderSec);
+    }
+
+    cout << "\n时间推进 " << seconds << " 秒完成!" << endl;
+    if (daysAdvanced > 0) {
+        cout << "  完整经过天数: " << daysAdvanced << " 天" << endl;
+    }
+    if (remainderSec > 0) {
+        cout << "  剩余秒数: " << remainderSec << " 秒 (不足一天，不计费)" << endl;
+    }
     cout << "  当前日期: Day" << weekday << " (" << WEEKDAY_NAMES[((weekday - 1) % 7)] << ")" << endl;
     cout << "  当前时间: " << formatTime() << endl;
-    cout << "  扣除住院费用总计: " << totalDeducted << " 元" << endl;
-    cout << "  过期挂号数: " << expiredCount << endl;
+    if (daysAdvanced > 0) {
+        cout << "  扣除住院费用总计: " << totalDeducted << " 元 (每位在院患者 " << daysAdvanced << "天 x " << HOSPITAL_DAILY_FEE << "元)" << endl;
+        cout << "  过期挂号数: " << expiredCount << endl;
+    } else {
+        cout << "  (推进不足一天，不计住院费、不过期挂号)" << endl;
+    }
 
     // Show patients with negative deposit
     int negativeCount = 0;
